@@ -33,9 +33,6 @@
   padding: 0;
 }
 
-.gameworld-place:hover:not(:disabled) {
-  background: #d1d5db;
-}
 
 .gameworld-place:disabled {
   cursor: not-allowed;
@@ -67,13 +64,16 @@
 }
 
 .gameworld-label-neutral {
-  background: #e5e7eb;
+  background: #ffe066;
+
 }
 
 .gameworld-label-easy {
-  background: #bbf7d0;
+  background: #7be87b;
+
 }
 
 .gameworld-label-hard {
-  background: #fecaca;
+  background: #ff6b6b;
+  
 }
