@@ -77,6 +77,19 @@ def play_round():
         # Find the move with the highest probability
         computer_move = max(range(len(computer_strategy)),
                             key=lambda i: computer_strategy[i])
+        if data['playerRole'] == 'hider':
+            # Get the row and column of the computer's move
+            computer_row = computer_move // game.world_cols
+            computer_col = computer_move % game.world_cols
+            # Update the game state
+            game.seeker_plays(computer_row, computer_col)
+        else:
+            # Get the row and column of the computer's move
+            computer_row = computer_move // game.world_cols
+            computer_col = computer_move % game.world_cols
+            # Update the game state
+            game.hider_plays(computer_row, computer_col)
+        
 
 
         # Return the computer's move and the current game state
