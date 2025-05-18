@@ -1,0 +1,89 @@
+.welcome-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #eff6ff;
+  padding: 1rem;
+}
+
+.welcome-box {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+}
+
+.welcome-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1e40af;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.welcome-content {
+  margin-bottom: 1.5rem;
+}
+
+.welcome-text {
+  color: #4b5563;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.welcome-input-group {
+  margin-bottom: 1rem;
+}
+
+.welcome-label {
+  display: block;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.welcome-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+}
+
+.welcome-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.welcome-btn {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 1rem;
+}
+
+.welcome-btn.hider {
+  background: #ef4444;
+}
+
+.welcome-btn.hider:hover {
+  background: #dc2626;
+}
+
+.welcome-btn.seeker {
+  background: #3b82f6;
+}
+
+.welcome-btn.seeker:hover {
+  background: #1d4ed8;
+}

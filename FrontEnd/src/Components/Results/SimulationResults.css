@@ -1,0 +1,15 @@
+.simulationresults-container {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f3f4f6;
+  border-radius: 0.5rem;
+}
+.simulationresults-title {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.simulationresults-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
