@@ -31,21 +31,22 @@ class mainInfo: # we get this info from the first page from user
         self.payoff, self.difficulty = self.random_world(self.world_size)
 
     def random_world(self , size):
-        level = [] * size
+        level = [0] * size
         world = [[0 for _ in range(size)] for _ in range(size)]
         for i in range(size):
-            level.append((random.randint(0, 2147483640))%3)
-        for i in range (size*size):
+            x = random.randint(0, 2147483640)%3
+            level[i] = x
+        for i in range (size):
             if level[i] == 0: #easy
-                world[i][:] = 2 
+                world[i] = [2] *size
                 world[i][i] = -1
             elif level[i] == 1: #med
-                world[i][:] = 1
+                world[i] = [1] *size
                 world[i][i] = -1
-            elif level[i] == 2: #hard 
-                world[i][:] = 1
-                world[i][i] = -3   
-        
+            elif level[i] == 2: #hard
+                world[i] = [1] * size
+                world[i][i] = -3
+
         diffecultyArr = [[0]*self.world_cols] * self.world_rows
         for i in range(self.world_rows):
             for j in range(self.world_cols):
