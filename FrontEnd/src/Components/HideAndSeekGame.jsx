@@ -240,8 +240,8 @@ try{
           gameWorld={gameWorld}
           playerMove={playerMove}
           computerMove={isPlayClicked ? computerMove : null}
-          placeTypeLabels={placeTypeLabels}
-          placeTypeColors={placeTypeColors}
+          // placeTypeLabels={placeTypeLabels}
+          // placeTypeColors={placeTypeColors}
           onPlaceClick={selectPlayerMove}
           playerRole={playerRole}
           showResult={isPlayClicked}

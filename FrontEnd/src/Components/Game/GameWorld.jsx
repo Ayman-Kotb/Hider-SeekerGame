@@ -4,15 +4,27 @@ export default function GameWorld({
     gameWorld,
     playerMove,
     computerMove,
-    placeTypeLabels,
-    placeTypeColors,
     onPlaceClick,
     playerRole,
     showResult,
     worldMode
 }) {
     const renderCell = (type, index) => {
-        const colorClass = placeTypeColors ? placeTypeColors[type] : 'gameworld-label-neutral';
+        let colorClass;
+        switch (type) {
+            case 0:
+                colorClass = 'gameworld-label-easy';
+                break;
+            case 1:
+                colorClass = 'gameworld-label-neutral';
+                break;
+            case 2:
+                colorClass = 'gameworld-label-hard';
+                break;
+            default:
+                colorClass = 'gameworld-label-neutral';
+        }
+        
         const isSelected = playerMove === index;
         const isComputer = showResult && computerMove === index;
         
@@ -52,8 +64,8 @@ export default function GameWorld({
                 {Array.isArray(gameWorld[0]) ? renderGrid() : renderLinear()}
             </div>
             <div className="gameworld-labels">
-                <span className="gameworld-label-neutral"></span> Neutral
                 <span className="gameworld-label-easy"></span> Easy for Seeker
+                <span className="gameworld-label-neutral"></span> Neutral
                 <span className="gameworld-label-hard"></span> Hard for Seeker
             </div>
         </div>

@@ -69,6 +69,7 @@ class mainInfo: # we get this info from the first page from user
                     world[i][i+2] = 1 *0.75
                 if (i-2>-1):
                     world [i][i-2] = 1 *0.75
+        print(world)
         diffecultyArr = [[0 for _ in range(self.world_cols)] for _ in range(self.world_rows)]
         for i in range(self.world_rows):
             for j in range(self.world_cols):
