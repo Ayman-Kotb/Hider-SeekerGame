@@ -52,14 +52,27 @@ export default function HideAndSeekGame() {
   };
 
   const resetGame = async () => {
-    setPlayerMove(null);
-    setComputerMove(null);
-    setRoundResult(null);
-    setPlayerScore(0);
-    setComputerScore(0);
-    setRoundsPlayed(0);
-    setShowSimulation(false);
-    setIsPlayClicked(false);
+    try{
+      const response = await fetch('http://localhost:5000/api/reset-game', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      console.log('Game reset:', data);
+      setPlayerMove(null);
+      setComputerMove(null);
+      setRoundResult(null);
+      setPlayerScore(0);
+      setComputerScore(0);
+      setRoundsPlayed(0);
+      setShowSimulation(false);
+      setIsPlayClicked(false);
+    }
+    catch (error) {
+      console.error('Error resetting game:', error);
+    }
   };
 
   const backToStartPage = () => {

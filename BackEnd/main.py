@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import numpy as np
 from GameFlow.startUp import mainInfo
 import traceback
 
@@ -39,7 +40,20 @@ def start_game():
         print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/reset-game', methods=['POST'])
+def reset_game():
+    """
+    Reset the game of Hide and Seek.
 
+    Returns:
+    - gameWorld: the game world as a 2D array
+    """
+    try:
+        game.resetGame()
+        return jsonify({})
+    except Exception as e:
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
 @app.route('/api/play-round', methods=['POST'])
 def play_round():
     """
@@ -57,41 +71,23 @@ def play_round():
     """
     try:
         data = request.json
-        if data['playerRole'] == 'hider':
-            # Get the row and column of the human player's move
-            row = data['playerMove'] // game.world_cols
-            col = data['playerMove'] % game.world_cols
-            # Update the game state
-            game.hider_plays(row, col)
-        else:
-            # Get the row and column of the human player's move
-            row = data['playerMove'] // game.world_cols
-            col = data['playerMove'] % game.world_cols
-            # Update the game state
-            game.seeker_plays(row, col)
-
         # Get the computer's move using linear programming
+        row = data['playerMove'] // game.world_cols
+        col = data['playerMove'] % game.world_cols
         game.formulate_game()
         result = game.solve_game_as_LP()
         computer_strategy = result.x[:-1]  # Extract probabilities
-        # Find the move with the highest probability
-        computer_move = max(range(len(computer_strategy)),
-                            key=lambda i: computer_strategy[i])
+        computer_move = np.random.choice(len(computer_strategy), p=computer_strategy)
+        computer_row = computer_move // game.world_cols
+        computer_col = computer_move % game.world_cols
         if data['playerRole'] == 'hider':
-            # Get the row and column of the computer's move
-            computer_row = computer_move // game.world_cols
-            computer_col = computer_move % game.world_cols
-            # Update the game state
+            game.hider_plays(row, col)
             game.seeker_plays(computer_row, computer_col)
         else:
-            # Get the row and column of the computer's move
-            computer_row = computer_move // game.world_cols
-            computer_col = computer_move % game.world_cols
-            # Update the game state
             game.hider_plays(computer_row, computer_col)
-        
-
-
+            game.seeker_plays(row, col)
+            # computer_move = max(range(len(computer_strategy)),
+            #                     key=lambda i: computer_strategy[i])
         # Return the computer's move and the current game state
         return jsonify({
             'computerMove': computer_move,

@@ -3,8 +3,8 @@ from scipy.optimize import linprog
 import random
 
 class mainInfo: # we get this info from the first page from user
-    world_rows = 10
-    world_cols = 10
+    world_rows = 0
+    world_cols = 0
     world_size = 0
     hider_score = 0
     seeker_score = 0
@@ -33,20 +33,42 @@ class mainInfo: # we get this info from the first page from user
     def random_world(self , size):
         level = [0] * size
         world = [[0 for _ in range(size)] for _ in range(size)]
-        for i in range(size):
+        for i in range (size):
             x = random.randint(0, 2147483640)%3
             level[i] = x
-        for i in range (size):
             if level[i] == 0: #easy
                 world[i] = [2] *size
                 world[i][i] = -1
+                if (i+1<size):
+                    world[i][i+1] = 2 *0.5
+                if (i-1>-1):
+                    world [i][i-1] = 2 *0.5
+                if (i+2<size):
+                    world[i][i+2] = 2 *0.75
+                if (i-2>-1):
+                    world [i][i-2] = 2 *0.75
             elif level[i] == 1: #med
                 world[i] = [1] *size
                 world[i][i] = -1
+                if (i+1<size):
+                    world[i][i+1] = 1 *0.5
+                if (i-1>-1):
+                    world [i][i-1] = 1 *0.5
+                if (i+2<size):
+                    world[i][i+2] = 1 *0.75
+                if (i-2>-1):
+                    world [i][i-2] = 1 *0.75
             elif level[i] == 2: #hard
                 world[i] = [1] * size
                 world[i][i] = -3
-
+                if (i+1<size):
+                    world[i][i+1] = 1 *0.5
+                if (i-1>-1):
+                    world [i][i-1] = 1 *0.5
+                if (i+2<size):
+                    world[i][i+2] = 1 *0.75
+                if (i-2>-1):
+                    world [i][i-2] = 1 *0.75
         diffecultyArr = [[0 for _ in range(self.world_cols)] for _ in range(self.world_rows)]
         for i in range(self.world_rows):
             for j in range(self.world_cols):
@@ -66,51 +88,63 @@ class mainInfo: # we get this info from the first page from user
         current_pos = i * self.world_cols + j
 
         # Create a safe update function that checks bounds
-        def safe_update_payoff(row1, col1, row2, col2, factor):
-            # Make sure coordinates are within bounds using modulo
-            row1 = row1 % self.world_rows
-            col1 = col1 % self.world_cols
-            row2 = row2 % self.world_rows
-            col2 = col2 % self.world_cols
+        #def safe_update_payoff(row1, col1, row2, col2, factor):
+        #     # Make sure coordinates are within bounds using modulo
+        #     row1 = row1 % self.world_rows
+        #     col1 = col1 % self.world_cols
+        #     row2 = row2 % self.world_rows
+        #     col2 = col2 % self.world_cols
 
-            # Calculate positions in flattened grid
-            pos1 = row1 * self.world_cols + col1
-            pos2 = row2 * self.world_cols + col2
+        #     # Calculate positions in flattened grid
+        #     pos1 = row1 * self.world_cols + col1
+        #     pos2 = row2 * self.world_cols + col2
 
-            # Check if indices are within payoff matrix bounds
-            if 0 <= pos1 < len(self.payoff) and 0 <= pos2 < len(self.payoff[0]):
-                self.payoff[pos1][pos2] *= factor
+        #     # Check if indices are within payoff matrix bounds
+        #     if 0 <= pos1 < len(self.payoff) and 0 <= pos2 < len(self.payoff[0]):
+        #         self.payoff[pos1][pos2] *= factor
 
-        # Update payoffs for direct neighbors (factor 0.5)
-        safe_update_payoff(i + 1, j, i, j, 0.5)  # Down
-        safe_update_payoff(i - 1, j, i, j, 0.5)  # Up
-        safe_update_payoff(i, j, i, j + 1, 0.5)  # Right
-        safe_update_payoff(i, j, i, j - 1, 0.5)  # Left
+        # # Update payoffs for direct neighbors (factor 0.5)
+        # safe_update_payoff(i + 1, j, i, j, 0.5)  # Down
+        # safe_update_payoff(i - 1, j, i, j, 0.5)  # Up
+        # safe_update_payoff(i, j, i, j + 1, 0.5)  # Right
+        # safe_update_payoff(i, j, i, j - 1, 0.5)  # Left
 
-        # Update payoffs for positions two steps away (factor 0.75)
-        safe_update_payoff(i + 2, j, i, j, 0.75)  # Down 2
-        safe_update_payoff(i - 2, j, i, j, 0.75)  # Up 2
-        safe_update_payoff(i, j, i, j + 2, 0.75)  # Right 2
-        safe_update_payoff(i, j, i, j - 2, 0.75)  # Left 2
+        # # Update payoffs for positions two steps away (factor 0.75)
+        # safe_update_payoff(i + 2, j, i, j, 0.75)  # Down 2
+        # safe_update_payoff(i - 2, j, i, j, 0.75)  # Up 2
+        # safe_update_payoff(i, j, i, j + 2, 0.75)  # Right 2
+        # safe_update_payoff(i, j, i, j - 2, 0.75)  # Left 2
 
-        # Update payoffs for diagonal neighbors (factor 0.75)
-        safe_update_payoff(i + 1, j, i, j + 1, 0.75)  # Down-Right
-        safe_update_payoff(i + 1, j, i, j - 1, 0.75)  # Down-Left
-        safe_update_payoff(i - 1, j, i, j + 1, 0.75)  # Up-Right
-        safe_update_payoff(i - 1, j, i, j - 1, 0.75)  # Up-Left
+        # # Update payoffs for diagonal neighbors (factor 0.75)
+        # safe_update_payoff(i + 1, j, i, j + 1, 0.75)  # Down-Right
+        # safe_update_payoff(i + 1, j, i, j - 1, 0.75)  # Down-Left
+        # safe_update_payoff(i - 1, j, i, j + 1, 0.75)  # Up-Right
+        # safe_update_payoff(i - 1, j, i, j - 1, 0.75)  # Up-Left
 
-        # Update game state
-        self.formulate_game()
+        # # Update game state
+        #self.formulate_game()
 
     def seeker_plays(self , i , j):
-        print (self.payoff)
-        # if abs(i - self.hider_location[0]) + abs(j - self.hider_location[1]) == 0:
-        #     self.seeker_score = self.seeker_score + abs(self.payoff[i * self.world_size + j])
-        # else:  # elif (abs(i-self.hider_location[0])+abs(j-self.hider_location[1]) == 1):
-        #     self.hider_score = self.hider_score + abs(self.payoff[i * self.world_size + j])
+        print(self.difficulty)
+        print(self.payoff)
+        print ("location of hider : ")
+        print(self.hider_location[0] * self.world_rows + self.hider_location[1])
+        print ("location of seeker : ")
+        print(i * self.world_rows + j)
+        if abs(i - self.hider_location[0]) + abs(j - self.hider_location[1]) == 0:
+            
+            self.seeker_score =   abs(self.payoff[self.hider_location[0] * self.world_rows + self.hider_location[1]][i*self.world_rows + j])*4
+            self.hider_score =  -abs(self.payoff[self.hider_location[0] * self.world_rows + self.hider_location[1]][i*self.world_rows + j])*4
+        else:  # elif (abs(i-self.hider_location[0])+abs(j-self.hider_location[1]) == 1):
+            self.hider_score =   abs(self.payoff[self.hider_location[0] * self.world_rows + self.hider_location[1]][i*self.world_rows + j])*4
+            self.seeker_score =  -abs(self.payoff[self.hider_location[0] * self.world_rows + self.hider_location[1]][i*self.world_rows + j])*4
         # # elif (abs(i-self.hider_location[0])+abs(j-self.hider_location[1]) == 2):
         #     self.hider_score = self.hider_score + abs(self.payoff[i*self.world_cols+j])
 
+    def resetGame (self):
+        self.hider_score = 0
+        self.seeker_score = 0
+        self.hider_location = (-1,-1)
     def formulate_game(self):
         if self.human_player_mode == 0:
             self.coeff = [row[:] for row in self.payoff]  #hider -> max of min of coeff. 
@@ -131,7 +165,7 @@ class mainInfo: # we get this info from the first page from user
                 row = [self.coeff[i][j] for j in range(self.world_size)] + [-1]  # payoff - v ≤ 0
                 A.append(row)
                 b.append(0)
-        print ("i am A matrix"+A)
+        # print ("i am A matrix"+A)
         result = linprog(c=[0]*self.world_size+ [-1], A_ub=A, b_ub=b, A_eq=[[1]*self.world_size+[0]], b_eq=[1], bounds=bounds, method='highs')
         # print gain value
         print("Gain value: ", result.x[-1])
