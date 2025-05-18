@@ -89,16 +89,24 @@ export default function HideAndSeekGame() {
 
   const startGame = async (role) => {
     setPlayerRole(role);
-    if (worldMode === 'linear') {
-    setGameWorld(Array(worldSize).fill(0));
-  } else {
-    // Create 2D array for grid mode with correct rows and cols
-        const grid = Array(rows).fill().map(() => {
-            return Array(cols).fill(0);  // Explicitly create array with cols length
-        });
-        setGameWorld(grid);
-  }
-    setPlayerMove(null);
+  const payload = {
+    rows: worldMode === 'linear'?1:rows,
+    cols: worldMode === 'linear'?worldSize:cols,
+    gameMode: 'human', 
+    playerRole: role 
+  };
+try{
+  const response = await fetch('http://localhost:5000/api/start-game', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  console.log('Game started:', data);
+  setGameWorld(data.gameWorld);
+   setPlayerMove(null);
     setComputerMove(null);
     setRoundResult(null);
     setIsPlayClicked(false);
@@ -107,6 +115,10 @@ export default function HideAndSeekGame() {
     setComputerScore(0);
     setRoundsPlayed(0);
     setGameState('game');
+
+}catch (error) {
+  console.error('Error starting game:', error);
+} 
   };
 
   const selectPlayerMove = (position) => {
@@ -120,58 +132,44 @@ export default function HideAndSeekGame() {
     setIsPlayClicked(true);
 
     const payload = {
-        worldMode,
-        worldSize,
-        rows,
-        cols,
-        playerRole,
-        playerMove,
+        playerRole: playerRole,
+        playerMove: playerMove
     };
 
-    // Mock data for testing based on world mode
-    let mockGameWorld;
-    if (worldMode === 'linear') {
-        mockGameWorld = Array(worldSize).fill(0).map((_, i) => i % 3); // Creates [0,1,2,0,1,2,...]
-    } else {
-        // Create 2D array for grid mode
-        mockGameWorld = Array(rows).fill().map(() => 
-            Array(cols).fill(0).map((_, i) => i % 3)
-        );
+    try {
+        const response = await fetch('http://localhost:5000/api/play-round', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+        const data = await response.json();
+        console.log('Round played:', data);
+        setComputerMove(data.computerMove);
+        if(playerRole === 'hider'){
+            setPlayerScore(prev => prev + data.hiderScore);
+            setComputerScore(prev => prev + data.seekerScore);
+             if(data.hiderScore > data.seekerScore)setRoundResult({ winner: 'player', score: data.hiderScore });
+             else setRoundResult({ winner: 'computer', score: data.seekerScore }); }     
+        else{
+          setPlayerScore(prev => prev + data.hiderScore);
+          setComputerScore(prev => prev + data.seekerScore);
+           if(data.hiderScore > data.seekerScore)setRoundResult({ winner: 'computer', score: data.hiderScore });
+           else setRoundResult({ winner: 'player', score: data.seekerScore });
+          }
+         setRoundsPlayed(prev => prev +1);
+    }catch (error) {
+        console.error('Error playing round:', error);
     }
-
-    const data = {
-        gameWorld: mockGameWorld,
-        computerMove: worldMode === 'linear' ? 1 : Math.floor(Math.random() * (rows * cols)),
-        roundResult: { winner: 'computer', score: 1 },
-        playerScore: playerScore + 1,
-        computerScore,
-        roundsPlayed: roundsPlayed + 1
-    };
-
-    setGameWorld(data.gameWorld);
-    setComputerMove(data.computerMove);
-    setRoundResult(data.roundResult);
-    setPlayerScore(data.playerScore);
-    setComputerScore(data.computerScore);
-    setRoundsPlayed(data.roundsPlayed);
   };
 
   const nextRound = async () => {
-    // Reset player and computer moves
     setPlayerMove(null);
     setComputerMove(null);
     setRoundResult(null);
     setIsPlayClicked(false);
     
-    // Reset game world based on world mode
-    if (worldMode === 'linear') {
-      setGameWorld(Array(worldSize).fill(0));
-    } else {
-      const grid = Array(rows).fill().map(() => {
-        return Array(cols).fill(0);
-      });
-      setGameWorld(grid);
-    }
   };
 
   const runSimulation = async () => {

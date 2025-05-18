@@ -84,7 +84,7 @@ def play_round():
             'computerMove': computer_move,
             'hiderScore': game.hider_score,
             'seekerScore': game.seeker_score,
-            'probabilities': computer_strategy,
+            'probabilities': computer_strategy.tolist(),
         })
     except Exception as e:
         print(traceback.format_exc())
