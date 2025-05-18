@@ -8,7 +8,10 @@ import './HideAndSeekGame.css';
 
 export default function HideAndSeekGame() {
   const [gameState, setGameState] = useState('welcome');
+  const [worldMode, setWorldMode] = useState('linear');
   const [worldSize, setWorldSize] = useState(2);
+  const [rows, setRow] = useState(2);
+  const [cols, setCol] = useState(2);
   const [playerRole, setPlayerRole] = useState(null);
   const [gameWorld, setGameWorld] = useState([]);
   const [playerMove, setPlayerMove] = useState(null);
@@ -37,6 +40,17 @@ export default function HideAndSeekGame() {
     }
   };
 
+  const handleRowsChange = (val) => {
+    if (val >= 1) {
+      setRow(val);
+    }
+  };
+  const handleColsChange = (val) => {
+    if (val >= 1) {
+      setCol(val);
+    }
+  };
+
   const resetGame = async () => {
     setPlayerMove(null);
     setComputerMove(null);
@@ -59,11 +73,31 @@ export default function HideAndSeekGame() {
     setRoundsPlayed(0);
     setShowSimulation(false);
     setIsPlayClicked(false);
+    setGameWorld([]);
+    setWorldSize(2);
+    setRow(2);
+    setCol(2);
+    setWorldMode('linear');
+    setSimulationResults({
+      playerWins: 0,
+      computerWins: 0,
+      playerScore: 0,
+      computerScore: 0,
+      totalRounds: 0
+    });
   };
 
   const startGame = async (role) => {
     setPlayerRole(role);
+    if (worldMode === 'linear') {
     setGameWorld(Array(worldSize).fill(0));
+  } else {
+    // Create 2D array for grid mode with correct rows and cols
+        const grid = Array(rows).fill().map(() => {
+            return Array(cols).fill(0);  // Explicitly create array with cols length
+        });
+        setGameWorld(grid);
+  }
     setPlayerMove(null);
     setComputerMove(null);
     setRoundResult(null);
@@ -85,32 +119,35 @@ export default function HideAndSeekGame() {
     if (playerMove === null) return;
     setIsPlayClicked(true);
 
-
     const payload = {
-      worldSize,
-      playerRole,
-      playerMove,
+        worldMode,
+        worldSize,
+        rows,
+        cols,
+        playerRole,
+        playerMove,
     };
 
+    // Mock data for testing based on world mode
+    let mockGameWorld;
+    if (worldMode === 'linear') {
+        mockGameWorld = Array(worldSize).fill(0).map((_, i) => i % 3); // Creates [0,1,2,0,1,2,...]
+    } else {
+        // Create 2D array for grid mode
+        mockGameWorld = Array(rows).fill().map(() => 
+            Array(cols).fill(0).map((_, i) => i % 3)
+        );
+    }
 
-    // const response = await fetch('/api/play', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(payload)
-    // });
-
-    // const data = await response.json();
-
-    // Update all relevant state from backend response
-    // Mock data for testing
     const data = {
-      gameWorld: [0, 1, 2],
-      computerMove: 1,
-      roundResult: { winner: 'a', score: 1 },
-      playerScore: playerScore + 1,
-      computerScore,
-      roundsPlayed: roundsPlayed + 1
+        gameWorld: mockGameWorld,
+        computerMove: worldMode === 'linear' ? 1 : Math.floor(Math.random() * (rows * cols)),
+        roundResult: { winner: 'computer', score: 1 },
+        playerScore: playerScore + 1,
+        computerScore,
+        roundsPlayed: roundsPlayed + 1
     };
+
     setGameWorld(data.gameWorld);
     setComputerMove(data.computerMove);
     setRoundResult(data.roundResult);
@@ -120,10 +157,21 @@ export default function HideAndSeekGame() {
   };
 
   const nextRound = async () => {
+    // Reset player and computer moves
     setPlayerMove(null);
     setComputerMove(null);
     setRoundResult(null);
     setIsPlayClicked(false);
+    
+    // Reset game world based on world mode
+    if (worldMode === 'linear') {
+      setGameWorld(Array(worldSize).fill(0));
+    } else {
+      const grid = Array(rows).fill().map(() => {
+        return Array(cols).fill(0);
+      });
+      setGameWorld(grid);
+    }
   };
 
   const runSimulation = async () => {
@@ -135,9 +183,15 @@ export default function HideAndSeekGame() {
   if (gameState === 'welcome') {
     return (
       <WelcomeScreen
-        worldSize={worldSize}
-        onSizeChange={handleSizeChange}
-        onStartGame={startGame}
+         worldSize={worldSize}
+         onSizeChange={handleSizeChange}
+         onStartGame={startGame}
+         rows={rows}
+         handleRowChange={handleRowsChange}  // This was wrong - handleRowsChange instead of handleRowChange
+         cols={cols}
+         handleColsChange={handleColsChange}
+         worldMode={worldMode}
+         setWorldMode={setWorldMode}
       />
     );
   }
@@ -180,6 +234,7 @@ export default function HideAndSeekGame() {
           onPlaceClick={selectPlayerMove}
           playerRole={playerRole}
           showResult={isPlayClicked}
+          worldMode ={worldMode}
         />
 
         {roundResult && (

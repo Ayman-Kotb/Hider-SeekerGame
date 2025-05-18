@@ -4,7 +4,7 @@
 
 .gameworld-title {
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
   font-size: 1.25rem;
   color: #1f2937;
 }
@@ -12,13 +12,14 @@
 .gameworld-places {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
 }
 
 .gameworld-place {
-  width: 4rem;
-  height: 4rem;
+  width: 5rem;
+  height: 5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -76,4 +77,16 @@
 .gameworld-label-hard {
   background: #ff6b6b;
   
+}
+
+.grid-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.gameworld-row {
+    display: flex;
+    gap: 3rem;
 }

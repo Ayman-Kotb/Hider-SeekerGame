@@ -1,6 +1,6 @@
 import './WelcomeScreen.css';
 
-export default function WelcomeScreen({ worldSize, onSizeChange, onStartGame }) {
+export default function WelcomeScreen({ worldSize, onSizeChange, onStartGame, rows, handleRowChange, cols, handleColsChange, worldMode, setWorldMode }) {
     return (
         <div className="welcome-container">
             <div className="welcome-box">
@@ -10,15 +10,58 @@ export default function WelcomeScreen({ worldSize, onSizeChange, onStartGame }) 
                         Welcome to the Hide & Seek game!
                     </p>
                     <div className="welcome-input-group">
-                        <label className="welcome-label">World Size:</label>
-                        <input
-                            type="number"
-                            min="1"
-                            value={worldSize}
-                            onChange={onSizeChange}
+                        <label className="welcome-label">World Mode:</label>
+                        <select 
+                            value={worldMode} 
+                            onChange={(e) => {
+                                setWorldMode(e.target.value);
+                            }}
                             className="welcome-input"
-                        />
+                        >
+                            <option value="linear">Linear</option>
+                            <option value="grid">Grid</option>
+                        </select>
                     </div>
+
+                    {worldMode === 'linear' ? (
+                        <div className="welcome-input-group">
+                            <label className="welcome-label">World Size:</label>
+                            <input
+                                type="number"
+                                min="1"
+                                value={worldSize}
+                                onChange={onSizeChange}
+                                className="welcome-input"
+                            />
+                        </div>
+                    ) : (
+                        <>
+                            <div className="welcome-input-group">
+                                <label className="welcome-label">Rows:</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={rows}
+                                    onChange={(e) => {
+                                            handleRowChange(Number(e.target.value));
+                                    }}
+                                    className="welcome-input"
+                                />
+                            </div>
+                            <div className="welcome-input-group">
+                                <label className="welcome-label">Columns:</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={cols}
+                                    onChange={(e) => {
+                                        handleColsChange(Number(e.target.value)); 
+                                    }}
+                                    className="welcome-input"
+                                />
+                            </div>
+                        </>
+                    )}
                 </div>
                 <div className="welcome-buttons">
                     <button
