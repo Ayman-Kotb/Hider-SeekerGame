@@ -3,14 +3,14 @@ from scipy.optimize import linprog
 import random
 
 class mainInfo: # we get this info from the first page from user
-    world_rows = 0 
-    world_cols = 0 
+    world_rows = 0
+    world_cols = 0
     world_size = 0
     hider_score = 0
     seeker_score = 0
     coeff =[]
     world = [] # it includes elements as the number of places that hider can hide in
-    payoff = [] # generate random values according to levels (med −1 1 1 1) (easy 2 −1 2 2) (hard 1 1 −3 1)  
+    payoff = [] # generate random values according to levels (med −1 1 1 1) (easy 2 −1 2 2) (hard 1 1 −3 1)
     # it includes rows as the number of places that hider can hide in
     difficulty = [] # it includes elements as the number of places that hider can hide in
     game_mode = 0  # 0 human computers, 1 computer (simulation)
@@ -55,31 +55,31 @@ class mainInfo: # we get this info from the first page from user
         return world, diffecultyArr
     def hider_plays(self , i , j):
         self.hider_location = (i,j)
-        self.payoff[(i + 1) * self.world_size + j][i * self.world_size + j] = 0.75 * self.payoff[
+        self.payoff[(i + 1) * self.world_size + j][i * self.world_size + j] = 0.5 * self.payoff[
             (i + 1) * self.world_size + j][i * self.world_size + j]  # 4
-        self.payoff[(i - 1) * self.world_size + j][i * self.world_size + j] = 0.75 * self.payoff[
+        self.payoff[(i - 1) * self.world_size + j][i * self.world_size + j] = 0.5 * self.payoff[
             (i - 1) * self.world_size + j][i * self.world_size + j]  # 1
-        self.payoff[i * self.world_size + j][i * self.world_size + j + 1] = 0.75 * self.payoff[i * self.world_size + j][
+        self.payoff[i * self.world_size + j][i * self.world_size + j + 1] = 0.5 * self.payoff[i * self.world_size + j][
             i * self.world_size + j + 1]  # 2   #                        0.5(5)
-        self.payoff[i * self.world_size + j][i * self.world_size + j - 1] = 0.75 * self.payoff[i * self.world_size + j][
+        self.payoff[i * self.world_size + j][i * self.world_size + j - 1] = 0.5 * self.payoff[i * self.world_size + j][
             i * self.world_size + j - 1]  # 3    #             0.5(10)    0.75(1)        0.5 (9)
-        self.payoff[(i + 2) * self.world_size + j][i * self.world_size + j] = 0.5 * self.payoff[
+        self.payoff[(i + 2) * self.world_size + j][i * self.world_size + j] = 0.75 * self.payoff[
             (i + 2) * self.world_size + j][
             i * self.world_size + j]  # 8    #0.5 (7)      0.75(3)       x           0.75(2)    0.5 (6)
-        self.payoff[(i - 2) * self.world_size + j][i * self.world_size + j] = 0.5 * self.payoff[
+        self.payoff[(i - 2) * self.world_size + j][i * self.world_size + j] = 0.75 * self.payoff[
             (i - 2) * self.world_size + j][
             i * self.world_size + j]  # 5    #             0.5(12)    0.75(4)        0.5(11)
-        self.payoff[i * self.world_size + j][i * self.world_size + j + 2] = 0.5 * self.payoff[i * self.world_size + j][
+        self.payoff[i * self.world_size + j][i * self.world_size + j + 2] = 0.75 * self.payoff[i * self.world_size + j][
             i * self.world_size + j + 2]  # 6    #                        0.5 (8)
-        self.payoff[i * self.world_size + j][i * self.world_size + j - 2] = 0.5 * self.payoff[i * self.world_size + j][
+        self.payoff[i * self.world_size + j][i * self.world_size + j - 2] = 0.75 * self.payoff[i * self.world_size + j][
             i * self.world_size + j - 2]  # 7
-        self.payoff[(i + 1) * self.world_size + j][i * self.world_size + j + 1] = 0.5 * self.payoff[
+        self.payoff[(i + 1) * self.world_size + j][i * self.world_size + j + 1] = 0.75 * self.payoff[
             (i + 1) * self.world_size + j][i * self.world_size + j + 1]  # 11
-        self.payoff[(i + 1) * self.world_size + j][i * self.world_size + j - 1] = 0.5 * self.payoff[
+        self.payoff[(i + 1) * self.world_size + j][i * self.world_size + j - 1] = 0.75 * self.payoff[
             (i + 1) * self.world_size + j][i * self.world_size + j - 1]  # 12
-        self.payoff[(i - 1) * self.world_size + j][i * self.world_size + j + 1] = 0.5 * self.payoff[
+        self.payoff[(i - 1) * self.world_size + j][i * self.world_size + j + 1] = 0.75 * self.payoff[
             (i - 1) * self.world_size + j][i * self.world_size + j + 1]  # 9
-        self.payoff[(i - 1) * self.world_size + j][i * self.world_size + j - 1] = 0.5 * self.payoff[
+        self.payoff[(i - 1) * self.world_size + j][i * self.world_size + j - 1] = 0.75 * self.payoff[
             (i - 1) * self.world_size + j][i * self.world_size + j - 1]  # 10
         self.formulate_game()
 
