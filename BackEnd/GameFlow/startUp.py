@@ -1,0 +1,76 @@
+import numpy as np
+from scipy.optimize import linprog
+import random
+
+class mainInfo: # we get this info from the first page from user
+    world_rows = 0 
+    world_cols = 0 
+    world_size = 0
+    hider_score = 0
+    seeker_score = 0
+    coeff =[]
+    world = [] # it includes elements as the number of places that hider can hide in
+    payoff = [] # generate random values according to levels (med −1 1 1 1) (easy 2 −1 2 2) (hard 1 1 −3 1)  
+    # it includes rows as the number of places that hider can hide in 
+    game_mode = 0  # 0 human computer  , 1 computer computer (simulation)
+    human_player_mode = 0 # 0 player hider , 1 player seeker
+
+    def start(self, world_rows,world_cols,game_mode,human_player_mode):
+        self.world_rows = world_rows
+        self.hider_location = (-1,-1)
+        self.world_cols = world_cols
+        self.world_size = world_cols * world_rows
+        self.game_mode = game_mode
+        self.coeff = [[0 for _ in range(self.world_size)] for _ in range(self.world_size)]
+        self.world = [[0 for _ in range(world_cols)] for _ in range(world_rows)]
+        self.human_player_mode = human_player_mode
+        self.payoff = self.random_world(self.world_size)
+
+    def random_world(self , size):
+        level = [] * size
+        world = [[0 for _ in range(size)] for _ in range(size)]
+        for i in range(size):
+            level.append((random.randint(0, 2147483640))%3)
+        for i in range (size*size):
+            if level[i] == 0: #easy
+                world[i][:] = 2 
+                world[i][i] = -1
+            elif level[i] == 1: #med
+                world[i][:] = 1
+                world[i][i] = -1
+            elif level[i] == 2: #hard 
+                world[i][:] = 1
+                world[i][i] = -3   
+        print (world)
+        return world
+    def hider_plays(self , i , j):
+        self.hider_location = (i,j)
+    def seeker_plays(self , i , j):
+        if (abs(i-self.hider_location[0])+abs(j-self.hider_location[1]) == 0):
+            self.seeker_score = self.seeker_score + abs(self.payoff[i*self.world_cols+j])
+        elif (abs(i-self.hider_location[0])+abs(j-self.hider_location[1]) == 1):
+            self.hider_score = self.hider_score + 0.75*abs(self.payoff[i*self.world_cols+j])
+        elif (abs(i-self.hider_location[0])+abs(j-self.hider_location[1]) == 2):
+            self.hider_score = self.hider_score + 0.5*abs(self.payoff[i*self.world_cols+j])
+    def formulate_game(self):
+        if self.human_player_mode == 0:
+            self.coeff = [row[:] for row in self.payoff]  #hider -> max of min of coeff. 
+        else:
+            self.coeff = [list(col) for col in zip(*self.payoff)]  #seeker -> min of max of coeff
+    def solve_game_as_LP(self):
+        bounds = [(0, 1)] * self.world_size + [(None, None)]
+        A=[]
+        b=[]
+        if self.human_player_mode == 0:  # hider -> max of min of coeff.
+            for j in range(self.world_size):
+                row = [-self.coeff[i][j] for i in range(self.world_size)] + [1]  # -payoff + v ≤ 0
+                A.append(row)
+                b.append(0)
+        else:                              # seeker -> min of max of coeff
+            for i in range(self.world_size):
+                row = [self.coeff[i][j] for j in range(self.world_size)] + [-1]  # payoff - v ≤ 0
+                A.append(row)
+                b.append(0)
+        result = linprog(c=[0]*self.world_size+ [-1], A_ub=A, b_ub=b, A_eq=[[1]*self.world_size+[0]], b_eq=[1], bounds=bounds, method='highs')
+        return result
+        
