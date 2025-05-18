@@ -169,5 +169,5 @@ class mainInfo: # we get this info from the first page from user
         # print ("i am A matrix"+A)
         result = linprog(c=[0]*self.world_size+ [-1], A_ub=A, b_ub=b, A_eq=[[1]*self.world_size+[0]], b_eq=[1], bounds=bounds, method='highs')
         # print gain value
-        print("Gain value: ", result.x[-1])
+        # print("Gain value: ", result.x[-1])
         return result
