@@ -76,7 +76,6 @@ export default function HideAndSeekGame() {
   };
 
   const selectPlayerMove = (position) => {
-    if (playerMove !== null) return;
     setPlayerMove(position);
     setIsPlayClicked(false);
   };
@@ -189,19 +188,12 @@ export default function HideAndSeekGame() {
               roundResult={roundResult}
               onNextRound={nextRound}
             />
-            <button
-              onClick={backToStartPage}
-              className="hideandseek-resetbtn"
-              style={{ marginTop: '1rem' }}
-            >
-              Back to Start Page
-            </button>
           </div>
         )}
 
         {!roundResult && (
           <>
-            {!playerMove && (
+            {playerMove===null && (
               <div className="hideandseek-prompt">
                 <p>Choose a place to {playerRole === 'hider' ? 'hide' : 'seek'}!</p>
               </div>

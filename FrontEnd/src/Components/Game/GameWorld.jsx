@@ -24,7 +24,7 @@ export default function GameWorld({
                             key={index}
                             className={`gameworld-place ${colorClass} ${isSelected ? 'selected' : ''} ${isComputer ? 'computer' : ''}`}
                             onClick={() => onPlaceClick(index)}
-                            disabled={playerMove !== null}
+                            disabled={showResult}
                         >
                             <div>
                                 <div>{index + 1}</div>
