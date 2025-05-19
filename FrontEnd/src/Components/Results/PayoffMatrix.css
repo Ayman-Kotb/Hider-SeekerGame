@@ -1,0 +1,32 @@
+ .payoffmatrix-container {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #f3f4f6;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.payoffmatrix-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.payoffmatrix-table-container {
+    overflow-x: auto;
+}
+
+.payoffmatrix-table {
+    border-collapse: collapse;
+    min-width: 300px;
+    width: 100%;
+    background: white;
+}
+
+.payoffmatrix-table th,
+.payoffmatrix-table td {
+    border: 1px solid #e5e7eb;
+    padding: 0.5rem 0.75rem;
+    text-align: center;
+}

@@ -5,6 +5,7 @@ import GameWorld from './Game/GameWorld';
 import RoundResult from './Results/RoundResult';
 import SimulationResults from './Results/SimulationResults';
 import './HideAndSeekGame.css';
+import PayoffMatrix from './Results/PayoffMatrix';
 
 export default function HideAndSeekGame() {
   const [gameState, setGameState] = useState('welcome');
@@ -30,6 +31,9 @@ export default function HideAndSeekGame() {
     roundsResults: []
   });
   const [isPlayClicked, setIsPlayClicked] = useState(false);
+  const [probabilities, setProbabilities] = useState([]);
+  const [payoffs, setPayoffs] = useState([]);
+  const [showPayoff, setShowPayoff] = useState(false);
 
   const placeTypeLabels = ['Neutral', 'Easy for Seeker', 'Hard for Seeker'];
   const placeTypeColors = ['gameworld-label-neutral', 'gameworld-label-easy', 'gameworld-label-hard'];
@@ -75,6 +79,7 @@ export default function HideAndSeekGame() {
       setPlayerScore(0);
       setComputerScore(0);
       setRoundsPlayed(0);
+      setPayoffs(data.payoff);
       setShowSimulation(false);
       setIsPlayClicked(false);
     }
@@ -135,6 +140,7 @@ try{
     setPlayerScore(0);
     setComputerScore(0);
     setRoundsPlayed(0);
+    setPayoffs(data.payoff);
     setGameState('game');
 
 }catch (error) {
@@ -313,7 +319,16 @@ try{
           >
             Run 100 Round Simulation
           </button>
+          <button
+            onClick={() => setShowPayoff(prev => !prev)}
+            className="hideandseek-simbtn"
+            style={{ marginLeft: '1rem' }}
+          >
+            {showPayoff ? 'Hide Payoff Matrix' : 'View Payoff Matrix'}
+          </button>
         </div>
+
+{showPayoff && <PayoffMatrix payoffs={payoffs} />}
 
         {showSimulation && (
           <SimulationResults simulationResults={simulationResults} />

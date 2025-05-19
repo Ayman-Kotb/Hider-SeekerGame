@@ -34,7 +34,8 @@ def start_game():
             human_player_mode=0 if data['playerRole'] == 'hider' else 1
         )
         return jsonify({
-            'gameWorld': game.difficulty
+            'gameWorld': game.difficulty,
+            'payoff': game.payoff,
         })
     except Exception as e:
         print(traceback.format_exc())
