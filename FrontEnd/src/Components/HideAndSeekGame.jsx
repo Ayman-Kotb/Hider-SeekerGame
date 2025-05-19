@@ -151,6 +151,7 @@ try{
   const playRound = async () => {
     if (playerMove === null) return;
     setIsPlayClicked(true);
+    setShowSimulation(false);
 
     const payload = {
         playerRole: playerRole,
