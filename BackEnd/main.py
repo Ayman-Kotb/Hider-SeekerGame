@@ -142,10 +142,10 @@ def simulate_game():
 
             if game.hider_score > game.seeker_score:
                 player_wins += 1
-                player_score += game.hider_score
             else:
                 computer_wins += 1
-                computer_score += game.seeker_score
+            player_score += game.hider_score
+            computer_score += game.seeker_score
 
             rounds_results.append({"winner" : "player" if game.hider_score > game.seeker_score else "computer", "hiderScore": game.hider_score, "seekerScore": game.seeker_score, "computerMove": computer_move, "playerMove": player_move})
 

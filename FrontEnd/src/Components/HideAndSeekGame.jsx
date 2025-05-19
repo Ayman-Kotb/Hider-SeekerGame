@@ -26,7 +26,8 @@ export default function HideAndSeekGame() {
     computerWins: 0,
     playerScore: 0,
     computerScore: 0,
-    totalRounds: 0
+    totalRounds: 0,
+    roundsResults: []
   });
   const [isPlayClicked, setIsPlayClicked] = useState(false);
 
@@ -52,7 +53,7 @@ export default function HideAndSeekGame() {
   };
 
   const resetGame = async () => {
-    try{
+    try {
       const response = await fetch('http://localhost:5000/api/reset-game', {
         method: 'POST',
         headers: {
@@ -182,13 +183,33 @@ try{
     setComputerMove(null);
     setRoundResult(null);
     setIsPlayClicked(false);
-    
+
   };
 
   const runSimulation = async () => {
-    // connect to backend and run simulation
-    // setSimulationResults(results);
-    setShowSimulation(true);
+    try {
+      const response = await fetch('http://localhost:5000/api/simulate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          rounds: 100
+        }),
+      });
+      const results = await response.json();
+      setSimulationResults({
+        playerWins: results.playerWins,
+        computerWins: results.computerWins,
+        playerScore: results.playerScore,
+        computerScore: results.computerScore,
+        totalRounds: results.totalRounds,
+        roundsResults: results.roundsResults 
+      });
+      setShowSimulation(true);
+    } catch (error) {
+      console.error('Errorrrr:', error);
+    }
   };
 
   if (gameState === 'welcome') {

@@ -7,9 +7,60 @@
 .simulationresults-title {
   font-weight: bold;
   margin-bottom: 0.5rem;
+  text-align: center;
 }
 .simulationresults-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.simulationresults-card {
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  text-align: center;
+}
+
+.simulationresults-card.player {
+  border-left: 4px solid #22c55e;
+}
+
+.simulationresults-card.computer {
+  border-left: 4px solid #ef4444;
+}
+
+.simulationresults-rounds {
+  margin-top: 1.5rem;
+}
+
+.simulationresults-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  font-size: 0.95rem;
+}
+
+.simulationresults-table th,
+.simulationresults-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+}
+
+.simulationresults-table th {
+  background: #e0e7ef;
+  font-weight: 600;
+}
+
+.round-player {
+  background: #e6ffe6;
+}
+
+.round-computer {
+  background: #ffe6e6;
 }
