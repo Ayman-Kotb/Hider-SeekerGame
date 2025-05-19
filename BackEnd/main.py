@@ -39,21 +39,6 @@ def start_game():
     except Exception as e:
         print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
-
-@app.route('/api/reset-game', methods=['POST'])
-def reset_game():
-    """
-    Reset the game of Hide and Seek.
-
-    Returns:
-    - gameWorld: the game world as a 2D array
-    """
-    try:
-        game.resetGame()
-        return jsonify({})
-    except Exception as e:
-        print(traceback.format_exc())
-        return jsonify({'error': str(e)}), 500
 @app.route('/api/play-round', methods=['POST'])
 def play_round():
     """

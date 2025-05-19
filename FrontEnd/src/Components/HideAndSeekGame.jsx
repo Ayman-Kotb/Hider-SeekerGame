@@ -52,16 +52,23 @@ export default function HideAndSeekGame() {
     }
   };
 
-  const resetGame = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/reset-game', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      console.log('Game reset:', data);
+ const resetGame = async () => {
+  try {
+    const payload = {
+      rows: worldMode === 'linear' ? 1 : rows,
+      cols: worldMode === 'linear' ? worldSize : cols,
+      gameMode: 'human',
+      playerRole: playerRole
+    };
+    const response = await fetch('http://localhost:5000/api/start-game', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json();
+    setGameWorld(data.gameWorld);
       setPlayerMove(null);
       setComputerMove(null);
       setRoundResult(null);
