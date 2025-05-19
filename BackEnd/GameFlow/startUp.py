@@ -156,18 +156,21 @@ class mainInfo: # we get this info from the first page from user
         bounds = [(0, 1)] * self.world_size + [(None, None)]
         A=[]
         b=[]
+        c=[]
         if self.human_player_mode == 0:  # hider -> max of min of coeff.
+            c = [0]*self.world_size + [-1]  # maximize v
             for j in range(self.world_size):
                 row = [-self.coeff[i][j] for i in range(self.world_size)] + [1]  # -payoff + v ≤ 0
                 A.append(row)
                 b.append(0)
-        else:                              # seeker -> min of max of coeff
+        else:
+            c = [0]*self.world_size + [1]  # maximize v# seeker -> min of max of coeff
             for i in range(self.world_size):
                 row = [self.coeff[i][j] for j in range(self.world_size)] + [-1]  # payoff - v ≤ 0
                 A.append(row)
                 b.append(0)
         # print ("i am A matrix"+A)
-        result = linprog(c=[0]*self.world_size+ [-1], A_ub=A, b_ub=b, A_eq=[[1]*self.world_size+[0]], b_eq=[1], bounds=bounds, method='highs')
+        result = linprog(c=c, A_ub=A, b_ub=b, A_eq=[[1]*self.world_size+[0]], b_eq=[1], bounds=bounds, method='highs')
         # print gain value
         # print("Gain value: ", result.x[-1])
         return result
