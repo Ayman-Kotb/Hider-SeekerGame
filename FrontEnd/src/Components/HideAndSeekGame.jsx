@@ -166,8 +166,8 @@ try{
              if(data.hiderScore > data.seekerScore)setRoundResult({ winner: 'player', score: data.hiderScore });
              else setRoundResult({ winner: 'computer', score: data.seekerScore }); }     
         else{
-          setPlayerScore(prev => prev + data.hiderScore);
-          setComputerScore(prev => prev + data.seekerScore);
+          setPlayerScore(prev => prev + data.seekerScore);
+          setComputerScore(prev => prev + data.hiderScore);
            if(data.hiderScore > data.seekerScore)setRoundResult({ winner: 'computer', score: data.hiderScore });
            else setRoundResult({ winner: 'player', score: data.seekerScore });
           }
