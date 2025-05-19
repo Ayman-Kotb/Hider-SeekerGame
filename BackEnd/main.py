@@ -122,15 +122,23 @@ def simulate_game():
         computer_wins = 0
         player_score = 0
         computer_score = 0
+        rounds_results = []
 
         game.game_mode = 1  # Set to simulation mode
 
+        game.resetGame()
         for _ in range(total_rounds):
             game.formulate_game()
             result = game.solve_game_as_LP()
             computer_strategy = result.x[:-1]
-            computer_move = max(range(len(computer_strategy)), key=lambda i: computer_strategy[i])
-            game.seeker_plays(computer_move // game.world_cols, computer_move % game.world_cols)
+            player_move = np.random.choice(len(computer_strategy), p=computer_strategy)
+            player_row = player_move // game.world_cols
+            player_col = player_move % game.world_cols
+            game.hider_plays(player_row, player_col)
+            computer_move = np.random.choice(len(computer_strategy), p=computer_strategy)
+            computer_row = computer_move // game.world_cols
+            computer_col = computer_move % game.world_cols
+            game.seeker_plays(computer_row, computer_col)
 
             if game.hider_score > game.seeker_score:
                 player_wins += 1
@@ -139,12 +147,15 @@ def simulate_game():
                 computer_wins += 1
                 computer_score += game.seeker_score
 
+            rounds_results.append({"winner" : "player" if game.hider_score > game.seeker_score else "computer", "hiderScore": game.hider_score, "seekerScore": game.seeker_score, "computerMove": computer_move, "playerMove": player_move})
+
         return jsonify({
             'playerWins': player_wins,
             'computerWins': computer_wins,
             'playerScore': player_score,
             'computerScore': computer_score,
-            'totalRounds': total_rounds
+            'totalRounds': total_rounds,
+            'roundsResults': rounds_results,
         })
     except Exception as e:
         print(traceback.format_exc())
