@@ -37,6 +37,11 @@ export default function HideAndSeekGame() {
   const [payoffs, setPayoffs] = useState([]);
   const [showPayoff, setShowPayoff] = useState(false);
   const [showProbabilities, setShowProbabilities] = useState(false);
+  const [initialProbabilities, setInitialProbabilities] = useState([]);
+  const [simulationProbabilities, setSimulationProbabilities] = useState({
+    hider: [],
+    seeker: []
+  });
   const placeTypeLabels = ['Neutral', 'Easy for Seeker', 'Hard for Seeker'];
   const placeTypeColors = ['gameworld-label-neutral', 'gameworld-label-easy', 'gameworld-label-hard'];
 
@@ -84,6 +89,7 @@ export default function HideAndSeekGame() {
       setPayoffs(data.payoff);
       setShowPayoff(false);
       setProbabilities1(data.probabilities);
+      setInitialProbabilities(data.probabilities);
       setShowProbabilities(false);
       setShowSimulation(false);
       setIsPlayClicked(false);
@@ -147,6 +153,7 @@ try{
     setShowPayoff(false);
     setShowProbabilities(false);
     setProbabilities1(data.probabilities);
+    setInitialProbabilities(data.probabilities);
     setRoundsPlayed(0);
     setPayoffs(data.payoff);
     setGameState('game');
@@ -194,8 +201,7 @@ try{
            if(data.hiderScore > data.seekerScore)setRoundResult({ winner: 'computer', score: data.hiderScore });
            else setRoundResult({ winner: 'player', score: data.seekerScore });
           }
-         //setProbabilities1(data.probabilities);
-         setRoundsPlayed(prev => prev +1);
+         setRoundsPlayed(prev => prev + 1);
          console.log(probabilities1);
          console.log(data.probabilities);
     }catch (error) {
@@ -223,9 +229,12 @@ try{
         }),
       });
       const results = await response.json();
+      setSimulationProbabilities({
+        hider: results.probabilitiesOfHider,
+        seeker: results.probabilitiesOfSeeker
+      });
       setProbabilities1(results.probabilitiesOfHider);
       setProbabilities2(results.probabilitiesOfSeeker);
-      console.log ( probabilities1,probabilities2);
       setSimulationResults({
         playerWins: results.playerWins,
         computerWins: results.computerWins,
@@ -289,8 +298,6 @@ try{
           gameWorld={gameWorld}
           playerMove={playerMove}
           computerMove={isPlayClicked ? computerMove : null}
-          // placeTypeLabels={placeTypeLabels}
-          // placeTypeColors={placeTypeColors}
           onPlaceClick={selectPlayerMove}
           playerRole={playerRole}
           showResult={isPlayClicked}
@@ -349,8 +356,14 @@ try{
           </button>
         </div>
 
-{showPayoff && <PayoffMatrix payoffs={payoffs} />}
-{showProbabilities && <Probabilities Probabilities1={probabilities1} Probabilities2={probabilities2} />}
+        {showPayoff && <PayoffMatrix payoffs={payoffs} />}
+        {showProbabilities && (
+          <Probabilities
+            Probabilities1={showSimulation ? simulationProbabilities.hider : initialProbabilities}
+            Probabilities2={showSimulation ? simulationProbabilities.seeker : []}
+            source={showSimulation ? 'simulation' : 'initial'}
+          />
+        )}
 
         {showSimulation && (
           <SimulationResults simulationResults={simulationResults} />
