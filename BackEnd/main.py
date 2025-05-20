@@ -33,9 +33,13 @@ def start_game():
             game_mode=0 if data['gameMode'] == 'human' else 1,
             human_player_mode=0 if data['playerRole'] == 'hider' else 1
         )
+        game.formulate_game()
+        result = game.solve_game_as_LP()
+        computer_strategy = result.x[:-1]
         return jsonify({
             'gameWorld': game.difficulty,
             'payoff': game.payoff,
+            'probabilities': computer_strategy.tolist()
         })
     except Exception as e:
         print(traceback.format_exc())
@@ -111,17 +115,23 @@ def simulate_game():
         rounds_results = []
 
         game.game_mode = 1  # Set to simulation mode
-
         game.resetGame()
+        game.human_player_mode = 0
+        game.formulate_game()
+        result1 = game.solve_game_as_LP()
+        game.human_player_mode = 1
+        game.formulate_game()
+        result2 = game.solve_game_as_LP()
         for _ in range(total_rounds):
-            game.formulate_game()
-            result = game.solve_game_as_LP()
-            computer_strategy = result.x[:-1]
-            player_move = np.random.choice(len(computer_strategy), p=computer_strategy)
+            computer_strategy1 = result1.x[:-1]
+            print(computer_strategy1)
+            player_move = np.random.choice(len(computer_strategy1), p=computer_strategy1)
             player_row = player_move // game.world_cols
             player_col = player_move % game.world_cols
             game.hider_plays(player_row, player_col)
-            computer_move = np.random.choice(len(computer_strategy), p=computer_strategy)
+            computer_strategy2 = result2.x[:-1]
+            print(computer_strategy2)
+            computer_move = np.random.choice(len(computer_strategy2), p=computer_strategy2)
             computer_row = computer_move // game.world_cols
             computer_col = computer_move % game.world_cols
             game.seeker_plays(computer_row, computer_col)
@@ -136,6 +146,8 @@ def simulate_game():
             rounds_results.append({"winner" : "player" if game.hider_score > game.seeker_score else "computer", "hiderScore": game.hider_score, "seekerScore": game.seeker_score, "computerMove": computer_move, "playerMove": player_move})
 
         return jsonify({
+            'probabilitiesOfHider': result1.x[:-1].tolist(),
+            'probabilitiesOfSeeker': result2.x[:-1].tolist(),
             'playerWins': player_wins,
             'computerWins': computer_wins,
             'playerScore': player_score,
