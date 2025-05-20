@@ -2,263 +2,313 @@ import numpy as np
 from scipy.optimize import linprog
 import random
 
-class mainInfo: # we get this info from the first page from user
-    world_rows = 0
-    world_cols = 0
-    world_size = 0
-    hider_score = 0
-    seeker_score = 0
-    coeff =[]
-    world = [] # it includes elements as the number of places that hider can hide in
-    payoff = [] # generate random values according to levels (med −1 1 1 1) (easy 2 −1 2 2) (hard 1 1 −3 1)
-    # it includes rows as the number of places that hider can hide in
-    difficulty = [] # it includes elements as the number of places that hider can hide in
-    game_mode = 0  # 0 human computers, 1 computer (simulation)
-    human_player_mode = 0 # 0 player hider , 1 player seeker
+
+class HideAndSeekGame:
+    """Main game class for Hide and Seek game logic"""
 
     def __init__(self):
-        self.hider_location = None
+        self.world_rows = 0
+        self.world_cols = 0
+        self.world_size = 0
+        self.hider_score = 0
+        self.seeker_score = 0
+        self.coeff = []
+        self.world = []
+        self.payoff = []
+        self.difficulty = []
+        self.game_mode = 0  # 0 human vs. computer, 1 computer simulation
+        self.human_player_mode = 0  # 0 player is hider, 1 player is seeker
+        self.hider_location = (-1, -1)
 
-    def start(self, world_rows,world_cols,game_mode,human_player_mode):
+    def initialize_game(self, world_rows, world_cols, game_mode, human_player_mode):
+        """Initialize a new game with the given parameters"""
         self.world_rows = world_rows
-        self.hider_location = (-1,-1)
         self.world_cols = world_cols
         self.world_size = world_cols * world_rows
         self.game_mode = game_mode
+        self.human_player_mode = human_player_mode
+        self.hider_location = (-1, -1)
+
+        # Initialize matrices
         self.coeff = [[0 for _ in range(self.world_size)] for _ in range(self.world_size)]
         self.world = [[0 for _ in range(world_cols)] for _ in range(world_rows)]
-        self.human_player_mode = human_player_mode
-        self.payoff, self.difficulty = self.random_world(self.world_size)
 
-    def random_world(self, size):
-        # Assuming rows and cols are global variables
-        # size = rows * cols (total number of cells)
+        # Generate random world and difficulty
+        self.payoff, self.difficulty = self._generate_random_world()
+
+        return {
+            'gameWorld': self.difficulty,
+            'payoff': self.payoff,
+            'worldSize': self.world_size
+        }
+
+    def _generate_random_world(self):
+        """Generate random world with different difficulty levels"""
+        size = self.world_size
         rows = self.world_rows
         cols = self.world_cols
 
-        level = [0] * size
+        level = [random.randint(0, 2) for _ in range(size)]
         world = [[0 for _ in range(size)] for _ in range(size)]
 
         for i in range(size):
-            x = random.randint(0, 2147483640) % 3
-            level[i] = x
-
-            # Convert linear index to 2D coordinates
             current_row = i // cols
             current_col = i % cols
 
             if level[i] == 0:  # easy
                 world[i] = [2] * size
                 world[i][i] = -1
+                self._set_neighbor_payoffs(world, i, current_row, current_col, rows, cols, size, 2)
 
-                # Horizontal neighbors (left/right)
-                if (i + 1 < size):
-                    world[i][i + 1] = 2 * 0.5
-                if (i - 1 > -1):
-                    world[i][i - 1] = 2 * 0.5
-                if (i + 2 < size):
-                    world[i][i + 2] = 2 * 0.75
-                if (i - 2 > -1):
-                    world[i][i - 2] = 2 * 0.75
-
-                # Vertical neighbors (up/down)
-                if (current_row + 1 < rows):  # down
-                    world[i][i + cols] = 2 * 0.5
-                if (current_row - 1 >= 0):  # up
-                    world[i][i - cols] = 2 * 0.5
-                if (current_row + 2 < rows):  # two rows down
-                    world[i][i + 2 * cols] = 2 * 0.75
-                if (current_row - 2 >= 0):  # two rows up
-                    world[i][i - 2 * cols] = 2 * 0.75
-
-                # Diagonal neighbors (up-right/down-left)
-                if (current_row + 1 < rows and current_col + 1 < cols):  # down-right
-                    world[i][i + cols + 1] = 2 * 0.75
-                if (current_row - 1 >= 0 and current_col + 1 < cols):  # up-right
-                    world[i][i - cols + 1] = 2 * 0.75
-                if (current_row + 1 < rows and current_col - 1 >= 0):  # down-left
-                    world[i][i + cols - 1] = 2 * 0.75
-                if (current_row - 1 >= 0 and current_col - 1 >= 0):  # up-left
-                    world[i][i - cols - 1] = 2 * 0.75
-
-            elif level[i] == 1:  # med
+            elif level[i] == 1:  # medium
                 world[i] = [1] * size
                 world[i][i] = -1
-
-                # Convert linear index to 2D coordinates
-                current_row = i // cols
-                current_col = i % cols
-
-                # Horizontal neighbors (left/right)
-                if (i + 1 < size):
-                    world[i][i + 1] = 1 * 0.5
-                if (i - 1 > -1):
-                    world[i][i - 1] = 1 * 0.5
-                if (i + 2 < size):
-                    world[i][i + 2] = 1 * 0.75
-                if (i - 2 > -1):
-                    world[i][i - 2] = 1 * 0.75
-
-                # Vertical neighbors (up/down)
-                if (current_row + 1 < rows):  # down
-                    world[i][i + cols] = 1 * 0.5
-                if (current_row - 1 >= 0):  # up
-                    world[i][i - cols] = 1 * 0.5
-                if (current_row + 2 < rows):  # two rows down
-                    world[i][i + 2 * cols] = 1 * 0.75
-                if (current_row - 2 >= 0):  # two rows up
-                    world[i][i - 2 * cols] = 1 * 0.75
-
-                # Diagonal neighbors (up-right/down-left)
-                if (current_row + 1 < rows and current_col + 1 < cols):  # down-right
-                    world[i][i + cols + 1] = 1 * 0.75
-                if (current_row - 1 >= 0 and current_col + 1 < cols):  # up-right
-                    world[i][i - cols + 1] = 1 * 0.75
-                if (current_row + 1 < rows and current_col - 1 >= 0):  # down-left
-                    world[i][i + cols - 1] = 1 * 0.75
-                if (current_row - 1 >= 0 and current_col - 1 >= 0):  # up-left
-                    world[i][i - cols - 1] = 1 * 0.75
+                self._set_neighbor_payoffs(world, i, current_row, current_col, rows, cols, size, 1)
 
             elif level[i] == 2:  # hard
                 world[i] = [1] * size
                 world[i][i] = -3
+                self._set_neighbor_payoffs(world, i, current_row, current_col, rows, cols, size, 1)
 
-                # Convert linear index to 2D coordinates
-                current_row = i // cols
-                current_col = i % cols
-
-                # Horizontal neighbors (left/right)
-                if (i + 1 < size):
-                    world[i][i + 1] = 1 * 0.5
-                if (i - 1 > -1):
-                    world[i][i - 1] = 1 * 0.5
-                if (i + 2 < size):
-                    world[i][i + 2] = 1 * 0.75
-                if (i - 2 > -1):
-                    world[i][i - 2] = 1 * 0.75
-
-                # Vertical neighbors (up/down)
-                if (current_row + 1 < rows):  # down
-                    world[i][i + cols] = 1 * 0.5
-                if (current_row - 1 >= 0):  # up
-                    world[i][i - cols] = 1 * 0.5
-                if (current_row + 2 < rows):  # two rows down
-                    world[i][i + 2 * cols] = 1 * 0.75
-                if (current_row - 2 >= 0):  # two rows up
-                    world[i][i - 2 * cols] = 1 * 0.75
-
-                # Diagonal neighbors (up-right/down-left)
-                if (current_row + 1 < rows and current_col + 1 < cols):  # down-right
-                    world[i][i + cols + 1] = 1 * 0.75
-                if (current_row - 1 >= 0 and current_col + 1 < cols):  # up-right
-                    world[i][i - cols + 1] = 1 * 0.75
-                if (current_row + 1 < rows and current_col - 1 >= 0):  # down-left
-                    world[i][i + cols - 1] = 1 * 0.75
-                if (current_row - 1 >= 0 and current_col - 1 >= 0):  # up-left
-                    world[i][i - cols - 1] = 1 * 0.75
-
-        print(world)
-        diffecultyArr = [[0 for _ in range(self.world_cols)] for _ in range(self.world_rows)]
+        # Create a difficulty array for 2D representation
+        difficulty_arr = [[0 for _ in range(self.world_cols)] for _ in range(self.world_rows)]
         for i in range(self.world_rows):
             for j in range(self.world_cols):
-                diffecultyArr[i][j] = level[i * self.world_cols + j]
-               
-        return world, diffecultyArr
+                difficulty_arr[i][j] = level[i * self.world_cols + j]
 
-    def hider_plays(self, i, j):
-        """
-        Updates payoff matrix when the hider plays at position (i,j)
-        Uses modulo arithmetic to handle edge cases
-        """
-        # Store hider's location
-        self.hider_location = (i, j)
+        return world, difficulty_arr
 
-        # Current position index in flattened grid
-        current_pos = i * self.world_cols + j
+    def _set_neighbor_payoffs(self, world, i, current_row, current_col, rows, cols, size, base_value):
+        """Set payoffs for neighboring cells"""
+        # Horizontal neighbors (left/right)
+        if ((i + 1) // cols) == current_row and i + 1 < size:
+            world[i][i + 1] = base_value * 0.5
+        if ((i - 1) // cols) == current_row and i - 1 >= 0:
+            world[i][i - 1] = base_value * 0.5
+        if ((i + 2) // cols) == current_row and i + 2 < size:
+            world[i][i + 2] = base_value * 0.75
+        if ((i - 2) // cols) == current_row and i - 2 >= 0:
+            world[i][i - 2] = base_value * 0.75
 
-        # Create a safe update function that checks bounds
-        #def safe_update_payoff(row1, col1, row2, col2, factor):
-        #     # Make sure coordinates are within bounds using modulo
-        #     row1 = row1 % self.world_rows
-        #     col1 = col1 % self.world_cols
-        #     row2 = row2 % self.world_rows
-        #     col2 = col2 % self.world_cols
+        # Vertical neighbors (up/down)
+        if current_row + 1 < rows:
+            world[i][i + cols] = base_value * 0.5
+        if current_row - 1 >= 0:
+            world[i][i - cols] = base_value * 0.5
+        if current_row + 2 < rows:
+            world[i][i + 2 * cols] = base_value * 0.75
+        if current_row - 2 >= 0:
+            world[i][i - 2 * cols] = base_value * 0.75
 
-        #     # Calculate positions in flattened grid
-        #     pos1 = row1 * self.world_cols + col1
-        #     pos2 = row2 * self.world_cols + col2
+        # Diagonal neighbors
+        if current_row + 1 < rows and current_col + 1 < cols:
+            world[i][i + cols + 1] = base_value * 0.75
+        if current_row - 1 >= 0 and current_col + 1 < cols:
+            world[i][i - cols + 1] = base_value * 0.75
+        if current_row + 1 < rows and current_col - 1 >= 0:
+            world[i][i + cols - 1] = base_value * 0.75
+        if current_row - 1 >= 0 and current_col - 1 >= 0:
+            world[i][i - cols - 1] = base_value * 0.75
 
-        #     # Check if indices are within payoff matrix bounds
-        #     if 0 <= pos1 < len(self.payoff) and 0 <= pos2 < len(self.payoff[0]):
-        #         self.payoff[pos1][pos2] *= factor
+    def make_hider_move(self, row, col):
+        """Process hider's move"""
+        self.hider_location = (row, col)
 
-        # # Update payoffs for direct neighbors (factor 0.5)
-        # safe_update_payoff(i + 1, j, i, j, 0.5)  # Down
-        # safe_update_payoff(i - 1, j, i, j, 0.5)  # Up
-        # safe_update_payoff(i, j, i, j + 1, 0.5)  # Right
-        # safe_update_payoff(i, j, i, j - 1, 0.5)  # Left
+    def make_seeker_move(self, row, col):
+        """Process seeker's move and calculate scores"""
+        hider_pos = self.hider_location[0] * self.world_cols + self.hider_location[1]
+        seeker_pos = row * self.world_cols + col
 
-        # # Update payoffs for positions two steps away (factor 0.75)
-        # safe_update_payoff(i + 2, j, i, j, 0.75)  # Down 2
-        # safe_update_payoff(i - 2, j, i, j, 0.75)  # Up 2
-        # safe_update_payoff(i, j, i, j + 2, 0.75)  # Right 2
-        # safe_update_payoff(i, j, i, j - 2, 0.75)  # Left 2
+        # Calculate Manhattan distance
+        distance = abs(row - self.hider_location[0]) + abs(col - self.hider_location[1])
 
-        # # Update payoffs for diagonal neighbors (factor 0.75)
-        # safe_update_payoff(i + 1, j, i, j + 1, 0.75)  # Down-Right
-        # safe_update_payoff(i + 1, j, i, j - 1, 0.75)  # Down-Left
-        # safe_update_payoff(i - 1, j, i, j + 1, 0.75)  # Up-Right
-        # safe_update_payoff(i - 1, j, i, j - 1, 0.75)  # Up-Left
+        if distance == 0:  # Seeker found hider
+            payoff_value = abs(self.payoff[hider_pos][seeker_pos])
+            self.seeker_score = payoff_value * 4
+            self.hider_score = -payoff_value * 4
+        else:  # Seeker didn't find hider
+            payoff_value = abs(self.payoff[hider_pos][seeker_pos])
+            self.hider_score = payoff_value * 4
+            self.seeker_score = -payoff_value * 4
 
-        # # Update game state
-        #self.formulate_game()
+        return {
+            'hiderScore': self.hider_score,
+            'seekerScore': self.seeker_score
+        }
 
-    def seeker_plays(self , i , j):
-        print(self.difficulty)
-        print(self.payoff)
-        print ("location of hider : ")
-        print(self.hider_location[0] * self.world_rows + self.hider_location[1])
-        print ("location of seeker : ")
-        print(i * self.world_rows + j)
-        if abs(i - self.hider_location[0]) + abs(j - self.hider_location[1]) == 0:
-            
-            self.seeker_score =   abs(self.payoff[self.hider_location[0] * self.world_rows + self.hider_location[1]][i*self.world_rows + j])*4
-            self.hider_score =  -abs(self.payoff[self.hider_location[0] * self.world_rows + self.hider_location[1]][i*self.world_rows + j])*4
-        else:  # elif (abs(i-self.hider_location[0])+abs(j-self.hider_location[1]) == 1):
-            self.hider_score =   abs(self.payoff[self.hider_location[0] * self.world_rows + self.hider_location[1]][i*self.world_rows + j])*4
-            self.seeker_score =  -abs(self.payoff[self.hider_location[0] * self.world_rows + self.hider_location[1]][i*self.world_rows + j])*4
-        # # elif (abs(i-self.hider_location[0])+abs(j-self.hider_location[1]) == 2):
-        #     self.hider_score = self.hider_score + abs(self.payoff[i*self.world_cols+j])
-
-    def resetGame (self):
+    def reset_game(self):
+        """Reset game scores and hider location"""
         self.hider_score = 0
         self.seeker_score = 0
-        self.hider_location = (-1,-1)
-    def formulate_game(self):
-        if self.human_player_mode == 0:
-            self.coeff = [row[:] for row in self.payoff]  #hider -> max of min of coeff. 
-        else:
-            self.coeff = [list(col) for col in zip(*self.payoff)]  #seeker -> min of max of coeff
+        self.hider_location = (-1, -1)
 
-    def solve_game_as_LP(self):
+    def formulate_game_matrix(self):
+        """Formulate the game matrix based on player mode"""
+        if self.human_player_mode == 0:  # Human is hider
+            self.coeff = [row[:] for row in self.payoff]
+        else:  # Human is seeker
+            self.coeff = [list(col) for col in zip(*self.payoff)]
+
+    def solve_optimal_strategy(self):
+        """Solve for optimal mixed strategy using Linear Programming"""
         bounds = [(0, 1)] * self.world_size + [(None, None)]
-        A=[]
-        b=[]
-        c=[]
-        if self.human_player_mode == 0:  # hider -> max of min of coeff.
-            c = [0]*self.world_size + [-1]  # maximize v
+        A = []
+        b = []
+        c = []
+
+        if self.human_player_mode == 0:  # Human is hider -> maximize minimum
+            c = [0] * self.world_size + [-1]  # maximize v
             for j in range(self.world_size):
-                row = [-self.coeff[i][j] for i in range(self.world_size)] + [1]  # -payoff + v ≤ 0
+                row = [-self.coeff[i][j] for i in range(self.world_size)] + [1]
                 A.append(row)
                 b.append(0)
-        else:
-            c = [0]*self.world_size + [1]  # maximize v# seeker -> min of max of coeff
+        else:  # Human is seeker -> minimize maximum
+            c = [0] * self.world_size + [1]  # minimize v
             for i in range(self.world_size):
-                row = [self.coeff[i][j] for j in range(self.world_size)] + [-1]  # payoff - v ≤ 0
+                row = [self.coeff[i][j] for j in range(self.world_size)] + [-1]
                 A.append(row)
                 b.append(0)
-        # print ("i am A matrix"+A)
-        result = linprog(c=c, A_ub=A, b_ub=b, A_eq=[[1]*self.world_size+[0]], b_eq=[1], bounds=bounds, method='highs')
-        # print gain value
-        # print("Gain value: ", result.x[-1])
+
+        result = linprog(
+            c=c,
+            A_ub=A,
+            b_ub=b,
+            A_eq=[[1] * self.world_size + [0]],
+            b_eq=[1],
+            bounds=bounds,
+            method='highs'
+        )
+
         return result
+
+
+class GameService:
+    """Service class to handle game operations"""
+
+    def __init__(self):
+        self.game = HideAndSeekGame()
+
+    def start_new_game(self, rows, cols, game_mode_str, player_role_str):
+        """Start a new game and return initial game state"""
+        try:
+            game_mode = 0 if game_mode_str == 'human' else 1
+            human_player_mode = 0 if player_role_str == 'hider' else 1
+
+            game_data = self.game.initialize_game(rows, cols, game_mode, human_player_mode)
+
+            # Get computer strategy
+            self.game.formulate_game_matrix()
+            result = self.game.solve_optimal_strategy()
+            computer_strategy = result.x[:-1]
+
+            return {
+                'success': True,
+                'gameWorld': game_data['gameWorld'],
+                'payoff': game_data['payoff'],
+                'probabilities': computer_strategy.tolist()
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
+    def play_game_round(self, player_role_str, player_move):
+        """Play a single round of the game"""
+        try:
+            # Convert player move to coordinates
+            row = player_move // self.game.world_cols
+            col = player_move % self.game.world_cols
+
+            # Get computer strategy
+            self.game.formulate_game_matrix()
+            result = self.game.solve_optimal_strategy()
+            computer_strategy = result.x[:-1]
+            computer_move = np.random.choice(len(computer_strategy), p=computer_strategy)
+            computer_row = computer_move // self.game.world_cols
+            computer_col = computer_move % self.game.world_cols
+
+            # Execute moves based on a player role
+            if player_role_str == 'hider':
+                self.game.make_hider_move(row, col)
+                scores = self.game.make_seeker_move(computer_row, computer_col)
+            else:
+                self.game.make_hider_move(computer_row, computer_col)
+                scores = self.game.make_seeker_move(row, col)
+
+            return {
+                'success': True,
+                'computerMove': computer_move,
+                'hiderScore': scores['hiderScore'],
+                'seekerScore': scores['seekerScore'],
+                'probabilities': computer_strategy.tolist()
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
+    def simulate_game_rounds(self, rounds):
+        """Simulate multiple rounds of computer vs computer play"""
+        try:
+            # Reset game for simulation
+            self.game.game_mode = 1
+            self.game.reset_game()
+
+            # Get strategies for both players
+            self.game.human_player_mode = 0  # Hider strategy
+            self.game.formulate_game_matrix()
+            hider_result = self.game.solve_optimal_strategy()
+
+            self.game.human_player_mode = 1  # Seeker strategy
+            self.game.formulate_game_matrix()
+            seeker_result = self.game.solve_optimal_strategy()
+
+            # Simulation variables
+            player_wins = 0
+            computer_wins = 0
+            player_score = 0
+            computer_score = 0
+            rounds_results = []
+
+            for _ in range(rounds):
+                # Get moves for both players
+                hider_strategy = hider_result.x[:-1]
+                player_move = np.random.choice(len(hider_strategy), p=hider_strategy)
+                player_row = player_move // self.game.world_cols
+                player_col = player_move % self.game.world_cols
+
+                seeker_strategy = seeker_result.x[:-1]
+                computer_move = np.random.choice(len(seeker_strategy), p=seeker_strategy)
+                computer_row = computer_move // self.game.world_cols
+                computer_col = computer_move % self.game.world_cols
+
+                # Execute moves
+                self.game.make_hider_move(player_row, player_col)
+                scores = self.game.make_seeker_move(computer_row, computer_col)
+
+                # Track results
+                if scores['hiderScore'] > scores['seekerScore']:
+                    player_wins += 1
+                else:
+                    computer_wins += 1
+
+                player_score += scores['hiderScore']
+                computer_score += scores['seekerScore']
+
+                rounds_results.append({
+                    "winner": "player" if scores['hiderScore'] > scores['seekerScore'] else "computer",
+                    "hiderScore": scores['hiderScore'],
+                    "seekerScore": scores['seekerScore'],
+                    "computerMove": computer_move,
+                    "playerMove": player_move
+                })
+
+            return {
+                'success': True,
+                'probabilitiesOfHider': hider_result.x[:-1].tolist(),
+                'probabilitiesOfSeeker': seeker_result.x[:-1].tolist(),
+                'playerWins': player_wins,
+                'computerWins': computer_wins,
+                'playerScore': player_score,
+                'computerScore': computer_score,
+                'totalRounds': rounds,
+                'roundsResults': rounds_results
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
