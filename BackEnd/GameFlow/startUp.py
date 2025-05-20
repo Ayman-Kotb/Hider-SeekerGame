@@ -30,45 +30,133 @@ class mainInfo: # we get this info from the first page from user
         self.human_player_mode = human_player_mode
         self.payoff, self.difficulty = self.random_world(self.world_size)
 
-    def random_world(self , size):
+    def random_world(self, size):
+        # Assuming rows and cols are global variables
+        # size = rows * cols (total number of cells)
+        rows = self.world_rows
+        cols = self.world_cols
+
         level = [0] * size
         world = [[0 for _ in range(size)] for _ in range(size)]
-        for i in range (size):
-            x = random.randint(0, 2147483640)%3
+
+        for i in range(size):
+            x = random.randint(0, 2147483640) % 3
             level[i] = x
-            if level[i] == 0: #easy
-                world[i] = [2] *size
+
+            # Convert linear index to 2D coordinates
+            current_row = i // cols
+            current_col = i % cols
+
+            if level[i] == 0:  # easy
+                world[i] = [2] * size
                 world[i][i] = -1
-                if (i+1<size):
-                    world[i][i+1] = 2 *0.5
-                if (i-1>-1):
-                    world [i][i-1] = 2 *0.5
-                if (i+2<size):
-                    world[i][i+2] = 2 *0.75
-                if (i-2>-1):
-                    world [i][i-2] = 2 *0.75
-            elif level[i] == 1: #med
-                world[i] = [1] *size
+
+                # Horizontal neighbors (left/right)
+                if (i + 1 < size):
+                    world[i][i + 1] = 2 * 0.5
+                if (i - 1 > -1):
+                    world[i][i - 1] = 2 * 0.5
+                if (i + 2 < size):
+                    world[i][i + 2] = 2 * 0.75
+                if (i - 2 > -1):
+                    world[i][i - 2] = 2 * 0.75
+
+                # Vertical neighbors (up/down)
+                if (current_row + 1 < rows):  # down
+                    world[i][i + cols] = 2 * 0.5
+                if (current_row - 1 >= 0):  # up
+                    world[i][i - cols] = 2 * 0.5
+                if (current_row + 2 < rows):  # two rows down
+                    world[i][i + 2 * cols] = 2 * 0.75
+                if (current_row - 2 >= 0):  # two rows up
+                    world[i][i - 2 * cols] = 2 * 0.75
+
+                # Diagonal neighbors (up-right/down-left)
+                if (current_row + 1 < rows and current_col + 1 < cols):  # down-right
+                    world[i][i + cols + 1] = 2 * 0.75
+                if (current_row - 1 >= 0 and current_col + 1 < cols):  # up-right
+                    world[i][i - cols + 1] = 2 * 0.75
+                if (current_row + 1 < rows and current_col - 1 >= 0):  # down-left
+                    world[i][i + cols - 1] = 2 * 0.75
+                if (current_row - 1 >= 0 and current_col - 1 >= 0):  # up-left
+                    world[i][i - cols - 1] = 2 * 0.75
+
+            elif level[i] == 1:  # med
+                world[i] = [1] * size
                 world[i][i] = -1
-                if (i+1<size):
-                    world[i][i+1] = 1 *0.5
-                if (i-1>-1):
-                    world [i][i-1] = 1 *0.5
-                if (i+2<size):
-                    world[i][i+2] = 1 *0.75
-                if (i-2>-1):
-                    world [i][i-2] = 1 *0.75
-            elif level[i] == 2: #hard
+
+                # Convert linear index to 2D coordinates
+                current_row = i // cols
+                current_col = i % cols
+
+                # Horizontal neighbors (left/right)
+                if (i + 1 < size):
+                    world[i][i + 1] = 1 * 0.5
+                if (i - 1 > -1):
+                    world[i][i - 1] = 1 * 0.5
+                if (i + 2 < size):
+                    world[i][i + 2] = 1 * 0.75
+                if (i - 2 > -1):
+                    world[i][i - 2] = 1 * 0.75
+
+                # Vertical neighbors (up/down)
+                if (current_row + 1 < rows):  # down
+                    world[i][i + cols] = 1 * 0.5
+                if (current_row - 1 >= 0):  # up
+                    world[i][i - cols] = 1 * 0.5
+                if (current_row + 2 < rows):  # two rows down
+                    world[i][i + 2 * cols] = 1 * 0.75
+                if (current_row - 2 >= 0):  # two rows up
+                    world[i][i - 2 * cols] = 1 * 0.75
+
+                # Diagonal neighbors (up-right/down-left)
+                if (current_row + 1 < rows and current_col + 1 < cols):  # down-right
+                    world[i][i + cols + 1] = 1 * 0.75
+                if (current_row - 1 >= 0 and current_col + 1 < cols):  # up-right
+                    world[i][i - cols + 1] = 1 * 0.75
+                if (current_row + 1 < rows and current_col - 1 >= 0):  # down-left
+                    world[i][i + cols - 1] = 1 * 0.75
+                if (current_row - 1 >= 0 and current_col - 1 >= 0):  # up-left
+                    world[i][i - cols - 1] = 1 * 0.75
+
+            elif level[i] == 2:  # hard
                 world[i] = [1] * size
                 world[i][i] = -3
-                if (i+1<size):
-                    world[i][i+1] = 1 *0.5
-                if (i-1>-1):
-                    world [i][i-1] = 1 *0.5
-                if (i+2<size):
-                    world[i][i+2] = 1 *0.75
-                if (i-2>-1):
-                    world [i][i-2] = 1 *0.75
+
+                # Convert linear index to 2D coordinates
+                current_row = i // cols
+                current_col = i % cols
+
+                # Horizontal neighbors (left/right)
+                if (i + 1 < size):
+                    world[i][i + 1] = 1 * 0.5
+                if (i - 1 > -1):
+                    world[i][i - 1] = 1 * 0.5
+                if (i + 2 < size):
+                    world[i][i + 2] = 1 * 0.75
+                if (i - 2 > -1):
+                    world[i][i - 2] = 1 * 0.75
+
+                # Vertical neighbors (up/down)
+                if (current_row + 1 < rows):  # down
+                    world[i][i + cols] = 1 * 0.5
+                if (current_row - 1 >= 0):  # up
+                    world[i][i - cols] = 1 * 0.5
+                if (current_row + 2 < rows):  # two rows down
+                    world[i][i + 2 * cols] = 1 * 0.75
+                if (current_row - 2 >= 0):  # two rows up
+                    world[i][i - 2 * cols] = 1 * 0.75
+
+                # Diagonal neighbors (up-right/down-left)
+                if (current_row + 1 < rows and current_col + 1 < cols):  # down-right
+                    world[i][i + cols + 1] = 1 * 0.75
+                if (current_row - 1 >= 0 and current_col + 1 < cols):  # up-right
+                    world[i][i - cols + 1] = 1 * 0.75
+                if (current_row + 1 < rows and current_col - 1 >= 0):  # down-left
+                    world[i][i + cols - 1] = 1 * 0.75
+                if (current_row - 1 >= 0 and current_col - 1 >= 0):  # up-left
+                    world[i][i - cols - 1] = 1 * 0.75
+
         print(world)
         diffecultyArr = [[0 for _ in range(self.world_cols)] for _ in range(self.world_rows)]
         for i in range(self.world_rows):
